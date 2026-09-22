@@ -1,0 +1,8 @@
+(function(root){
+  function formatTime(seconds){const ms=Math.max(0,Math.round(seconds*1000)),s=Math.floor(ms/1000);return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}.${String(ms%1000).padStart(3,'0')}`;}
+  function parseTime(text){const value=String(text).trim();if(/^\d+(?:\.\d{1,6})?$/.test(value))return Number(value);if(/^\d+:\d{1,2}(?:\.\d{1,6})?$/.test(value)){const [m,s]=value.split(':').map(Number);if(s<60)return m*60+s;}return NaN;}
+  function validateRange(start,end,duration){return Number.isFinite(start)&&Number.isFinite(end)&&start>=0&&end<=duration&&end-start>=.001-1e-9;}
+  function nearestMarker(value,markers,{width,span,min=0,max=Infinity,latched=null,enabled=true}={}){if(!enabled||width<=0)return {time:value,marker:null};const tolerance=span/width*10,hold=markers.find(m=>m.id===latched&&m.time>=min&&m.time<=max);if(hold&&Math.abs(value-hold.time)<=tolerance*1.6)return {time:hold.time,marker:hold};let best=null;for(const marker of markers){if(marker.time<min||marker.time>max)continue;if(Math.abs(value-marker.time)<=tolerance&&(!best||Math.abs(value-marker.time)<Math.abs(value-best.time)))best=marker;}return {time:best?best.time:value,marker:best};}
+  function previewRange(kind,start,end,duration,seconds=3){if(kind==='head')return [start,Math.min(end,start+seconds)];if(kind==='tail')return [Math.max(start,end-seconds),end];if(kind==='context')return [Math.max(0,end-2),Math.min(duration,end+1)];return [start,end];}
+  const api={formatTime,parseTime,validateRange,nearestMarker,previewRange};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.AudioEditorMath=api;
+})(typeof globalThis==='undefined'?this:globalThis);

@@ -1,0 +1,14 @@
+const assert=require('node:assert/strict');const {formatTime,parseTime,validateRange,nearestMarker,previewRange}=require('../editor-core.js');
+assert.equal(formatTime(59.9996),'01:00.000');assert.equal(formatTime(3723.456),'62:03.456');
+for(const [input,value]of [['12.345',12.345],['1:12.345',72.345],[' 0.001 ',.001],['0002',2]])assert.equal(parseTime(input),value);
+for(const input of ['','-1','1:60','abc','12.','1e2','1:2:3'])assert(Number.isNaN(parseTime(input)));
+assert(validateRange(2,2.001,30));assert(!validateRange(4,3,30));assert(!validateRange(0,31,30));
+const m=[{id:1,time:10},{id:2,time:20}];
+assert.equal(nearestMarker(10.2,m,{width:1000,span:30}).time,10);
+assert.equal(nearestMarker(10.4,m,{width:1000,span:30,latched:1}).time,10);
+assert.equal(nearestMarker(10.6,m,{width:1000,span:30,latched:1}).marker,null);
+assert.equal(nearestMarker(10.2,m,{width:1000,span:30,enabled:false}).time,10.2);
+assert.equal(nearestMarker(10.2,m,{width:1000,span:30,min:11}).marker,null);
+assert.equal(nearestMarker(10.2,m,{width:1000,span:3}).marker,null);
+assert.deepEqual(previewRange('tail',2,12,30),[9,12]);assert.deepEqual(previewRange('tail',11,12,30),[11,12]);assert.deepEqual(previewRange('context',2,12,30),[10,13]);assert.deepEqual(previewRange('context',2,30,30),[28,30]);
+console.log('PASS: editable time parsing, millisecond formatting, valid ranges, snapping/hysteresis/Alt bypass, zoom-scaled tolerance, tail and context preview boundaries.');

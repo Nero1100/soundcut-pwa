@@ -1,3 +1,5 @@
 companion/bin/
 companion/downloads/
 *.log
+
+companion/.runtime/
